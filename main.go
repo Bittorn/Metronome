@@ -1,9 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
+
+	"github.com/bwmarrin/discordgo"
 )
 
 func main() {
@@ -12,5 +13,8 @@ func main() {
 		log.Panic("Bot token was not found, please make sure BOT_TOKEN is present in your .env file")
 	}
 
-	fmt.Printf("Value found : %s \n", botToken)
+	bot, err := discordgo.New("Bot " + botToken)
+	if err != nil {
+		log.Panic("Error creating bot instance, please make sure BOT_TOKEN is a valid Discord bot token")
+	}
 }
