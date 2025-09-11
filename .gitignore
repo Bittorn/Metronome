@@ -28,3 +28,5 @@ go.work.sum
 .temp
 
 .DS_STORE
+*.kra~
+*.png~
