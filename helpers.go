@@ -24,7 +24,7 @@ func lookupRequired(envString string) string {
 }
 
 func lookupBool(envString string, defaultValue bool) bool {
-	l := lookup("REMOVE_COMMANDS_ON_EXIT", "false")
+	l := lookup(envString, strconv.FormatBool(defaultValue))
 	v, err := strconv.ParseBool(l)
 	if err != nil {
 		log.Printf("Error parsing env variable %s: expected bool, received %s \n", envString, l)
