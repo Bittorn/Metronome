@@ -94,6 +94,7 @@ func main() {
 	<-stop
 
 	if removeCommandsOnExit {
+		log.Println("Removing commands...")
 		for _, v := range registeredCommands {
 			err := session.ApplicationCommandDelete(session.State.User.ID, guildID, v.ID)
 			if err != nil {
