@@ -16,32 +16,12 @@ var (
 	botToken             = lookupRequired("BOT_TOKEN")                  //  Bot access token
 	guildID              = lookup("GUILD_ID", "")                       //  If not passed - bot registers commands globally
 	removeCommandsOnExit = lookupBool("REMOVE_COMMANDS_ON_EXIT", false) // Remove all commands after shutdowning or not, defaults to false
-
-	commands = []*discordgo.ApplicationCommand{
-		{
-			Name: "ping",
-			// All commands and options must have a description
-			// Commands/options without description will fail the registration
-			// of the command.
-			Description: "Pings the bot",
-		},
-	}
-
-	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
-		"ping": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-				Type: discordgo.InteractionResponseChannelMessageWithSource,
-				Data: &discordgo.InteractionResponseData{
-					Content: "Pong!",
-				},
-			})
-		},
-	}
 )
 
 const (
 	botIntents = (discordgo.IntentGuildMessages |
 		discordgo.IntentGuildMessageReactions |
+		discordgo.IntentGuildEmojis |
 		discordgo.IntentMessageContent |
 		discordgo.IntentGuildScheduledEvents |
 		discordgo.IntentGuildMessagePolls)
@@ -103,5 +83,5 @@ func main() {
 		}
 	}
 
-	log.Println("Gracefully shutting down.")
+	log.Println("Gracefully shutting down")
 }
