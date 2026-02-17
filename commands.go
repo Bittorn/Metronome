@@ -48,35 +48,46 @@ var (
 		"count-messages": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			options := i.ApplicationCommandData().Options
 
-			st, err := s.ChannelMessages(i.ChannelID, 100, "0", "0", "0")
-			if err != nil {
-				handleError(err, s, i)
-				return
-			}
-
-			log.Printf("Counting user messages: %s\n", options[0].Value)
 			var total_messages int
 			var total_edits int
 			var author string
 
+			var last_message_id string = "0"
+
 			var should_continue bool = true
-			for _, message := range st {
-				log.Printf("Message author: %s\n", message.EditedTimestamp)
-				if message.Author.ID == options[0].Value {
-					author = message.Author.Username
-					total_messages += 1
-					if message.EditedTimestamp != nil {
-						total_edits += 1
-					}
+
+			for should_continue {
+				st, err := s.ChannelMessages(i.ChannelID, 100, last_message_id, "0", "0")
+				if err != nil {
+					handleError(err, s, i)
+					return
 				}
-				if len(st) != 100 {
+				// gotta fix this, does not actually return number of items
+				// log.Printf("Number of items: %d\n", len(st))
+
+				if last_message_id == st[0].ID {
 					should_continue = false
+					break
+				}
+
+				for index, message := range st {
+					if index == 0 {
+						last_message_id = message.ID
+					}
+					// log.Printf("Message author: %s\n", message.EditedTimestamp)
+					if message.Author.ID == options[0].Value {
+						author = message.Author.Username
+						total_messages += 1
+						if message.EditedTimestamp != nil {
+							total_edits += 1
+						}
+					}
 				}
 			}
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
-					Content: author + " has sent **" + strconv.Itoa(total_messages) + "** messages, with **" + strconv.Itoa(total_edits) + "** of them being edited.",
+					Content: "Of the past 100 messages, " + author + " has sent **" + strconv.Itoa(total_messages) + "**, with **" + strconv.Itoa(total_edits) + "** of them being edited.",
 				},
 			})
 		},
