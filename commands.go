@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"strconv"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -17,7 +18,15 @@ var (
 		},
 		{
 			Name:        "count-messages",
-			Description: "Counts the messages sent by the user",
+			Description: "Counts the messages sent by the given user",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionUser,
+					Name:        "user",
+					Description: "The user to count messages from",
+					Required:    true,
+				},
+			},
 		},
 	}
 
@@ -37,11 +46,37 @@ var (
 			})
 		},
 		"count-messages": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			options := i.ApplicationCommandData().Options
+
+			st, err := s.ChannelMessages(i.ChannelID, 100, "0", "0", "0")
+			if err != nil {
+				handleError(err, s, i)
+				return
+			}
+
+			log.Printf("Counting user messages: %s\n", options[0].Value)
+			var total_messages int
+			var total_edits int
+			var author string
+
+			var should_continue bool = true
+			for _, message := range st {
+				log.Printf("Message author: %s\n", message.EditedTimestamp)
+				if message.Author.ID == options[0].Value {
+					author = message.Author.Username
+					total_messages += 1
+					if message.EditedTimestamp != nil {
+						total_edits += 1
+					}
+				}
+				if len(st) != 100 {
+					should_continue = false
+				}
+			}
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
-					Flags:   discordgo.MessageFlagsSuppressNotifications,
-					Content: "Not yet implemented, sorry!",
+					Content: author + " has sent **" + strconv.Itoa(total_messages) + "** messages, with **" + strconv.Itoa(total_edits) + "** of them being edited.",
 				},
 			})
 		},
