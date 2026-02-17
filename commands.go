@@ -15,6 +15,10 @@ var (
 			// of the command.
 			Description: "Pings the bot",
 		},
+		{
+			Name:        "count-messages",
+			Description: "Counts the messages sent by the user",
+		},
 	}
 
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
@@ -29,6 +33,15 @@ var (
 				Data: &discordgo.InteractionResponseData{
 					Flags:   discordgo.MessageFlagsEphemeral,
 					Content: e.MessageFormat() + " Pong!",
+				},
+			})
+		},
+		"count-messages": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Flags:   discordgo.MessageFlagsSuppressNotifications,
+					Content: "Not yet implemented, sorry!",
 				},
 			})
 		},
